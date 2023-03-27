@@ -54,6 +54,9 @@ public class UserController {
 		if (!headerToken.equals(token)) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
+		if (!repository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
 		User user = repository.findById(id).get();
 		return ResponseEntity.ok(user);
 	}
@@ -73,6 +76,9 @@ public class UserController {
 		if (!headerToken.equals(token)) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
+		if (!repository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
 		User user = repository.findById(id).get();
 		user.setName(updateUser.getName());
 		user.setEmail(updateUser.getEmail());
@@ -86,6 +92,9 @@ public class UserController {
 	public ResponseEntity<Void> delete(@PathVariable Long id, @RequestHeader("Authorization") String headerToken) {
 		if (!headerToken.equals(token)) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+		if (!repository.existsById(id)) {
+			return ResponseEntity.notFound().build();
 		}
 		if (repository.existsById(id)) {
 			repository.deleteById(id);
@@ -116,7 +125,10 @@ public class UserController {
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
-	public ResponseEntity<Void> options() {
+	public ResponseEntity<Void> options(@RequestHeader("Authorization") String headerToken) {
+		if (!headerToken.equals(token)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
 		HttpHeaders headers = new HttpHeaders();
 		Set<HttpMethod> allowed = new HashSet<>(Arrays.asList(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT,
 				HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.OPTIONS, HttpMethod.HEAD));
@@ -125,7 +137,13 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.HEAD)
-	public ResponseEntity<Void> head(@PathVariable Long id) {
+	public ResponseEntity<Void> head(@PathVariable Long id, @RequestHeader("Authorization") String headerToken) {
+		if (!headerToken.equals(token)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+		if (!repository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
 		HttpHeaders headers = new HttpHeaders();
 		Optional<User> user = repository.findById(id);
 		if (user.isPresent()) {
