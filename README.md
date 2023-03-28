@@ -3,7 +3,7 @@
 - O projeto usa o framework `Spring Boot` com as dependências: `Spring Web`, `JPA`, `H2`.
 - A Classe `WebServiceApplication` é responsável por levantar a aplicação
 - A Classe `UserRepository` é responsável por fornecer a interação com o banco de dados em memoria `h2` através da `JPA`.
-- A Classe `User` representa um usuário com os campos `name` e `email`. Além disso, utiliza o `hibernate e JPA` para ser mapeada para uma tabela no banco de dados `h2`.
+- A Classe `User` representa um usuário com os campos `name` e `email`. Além disso, utiliza o `JPA` para ser mapeada para uma tabela no banco de dados `h2`.
   
 - A Classe `UserController` é responsável por implementar os endpoints.
 # Tutorial: Como rodar a imagem do projeto a partir de um contêiner do Docker Hub
