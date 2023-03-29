@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -96,11 +95,8 @@ public class UserController {
 		if (!repository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		if (repository.existsById(id)) {
-			repository.deleteById(id);
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.notFound().build();
+		repository.deleteById(id);
+		return ResponseEntity.noContent().build();
 	}
 
 	@PatchMapping(value = "/{id}")
@@ -112,16 +108,20 @@ public class UserController {
 		if (!repository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		User user = repository.findById(id).get();
-		reqBodyMap.forEach((key, value) -> { // para cada chave e valor
-			Field field = ReflectionUtils.findField(User.class, key); // encontre encontre o campo que equivale
-																		// a key na classe User
-			field.setAccessible(true); // permite acesso a campos privados
-			ReflectionUtils.setField(field, user, value); // com base no campo e id de usuário atribuir o valor
-		});
-		user.setId(id);
-		repository.save(user);
-		return ResponseEntity.ok(user);
+		try {
+			User user = repository.findById(id).get();
+			reqBodyMap.forEach((key, value) -> { // para cada chave e valor
+				Field field = ReflectionUtils.findField(User.class, key); // encontre encontre o campo que equivale
+																			// a key na classe User
+				field.setAccessible(true); // permite acesso a campos privados
+				ReflectionUtils.setField(field, user, value); // com base no campo e id de usuário atribuir o valor
+			});
+			
+			repository.save(user);
+			return ResponseEntity.ok(user);
+		} catch (NullPointerException e) {
+			return ResponseEntity.badRequest().build(); // Em caso da key ser digitada errada
+		}
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
@@ -145,13 +145,8 @@ public class UserController {
 			return ResponseEntity.notFound().build();
 		}
 		HttpHeaders headers = new HttpHeaders();
-		Optional<User> user = repository.findById(id);
-		if (user.isPresent()) {
-			headers.set("id", id.toString());
-			return ResponseEntity.ok().headers(headers).build();
-		} else {
-			return ResponseEntity.notFound().build();
-		}
+		headers.set("id", id.toString());
+		return ResponseEntity.ok().headers(headers).build();
 	}
 
 }
